@@ -3,21 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Roblox Studio AI</title>
+  <title>Coding AI</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f0f14; color: #e8e8f0; height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     #app { width: 100%; max-width: 720px; height: 100dvh; display: flex; flex-direction: column; padding: 16px; gap: 12px; }
+    #mode-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mode-btn { display: flex; align-items: center; gap: 7px; padding: 7px 13px; border-radius: 20px; border: 1px solid #2a2a3a; background: #1a1a26; color: #888; font-size: 12.5px; cursor: pointer; transition: all 0.15s; }
+    .mode-btn:hover { background: #2a2a3a; color: #ccc; }
+    .mode-btn.active { color: var(--accent); border-color: var(--accent); background: rgba(255,255,255,0.05); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     header { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #2a2a3a; }
-    .logo { width: 36px; height: 36px; background: #e84444; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .logo { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     header h1 { font-size: 16px; font-weight: 600; color: #fff; }
     header p { font-size: 12px; color: #888; margin-top: 1px; }
     #messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding: 4px 0; scrollbar-width: thin; scrollbar-color: #2a2a3a transparent; }
     .msg { display: flex; gap: 10px; align-items: flex-start; }
     .msg.user { flex-direction: row-reverse; }
-    .avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
-    .assistant .avatar { background: #e84444; color: #fff; font-size: 10px; }
-    .user .avatar { background: #3a3af0; color: #fff; }
+    .avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; }
     .bubble { max-width: 82%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.6; }
     .assistant .bubble { background: #1a1a26; border: 1px solid #2a2a3a; border-bottom-left-radius: 4px; }
     .user .bubble { background: #1e1eaa; border-bottom-right-radius: 4px; }
@@ -26,7 +29,7 @@
     .bubble p:last-child { margin-bottom: 0; }
     pre { background: #0d0d18; border: 1px solid #2a2a3a; border-radius: 8px; padding: 12px 14px; margin: 8px 0; overflow-x: auto; }
     code { font-family: monospace; font-size: 12.5px; color: #a8d8a8; white-space: pre; }
-    p code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; color: #a8d8a8; }
+    p code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; color: #a8d8a8; font-family: monospace; }
     #chips { display: flex; flex-wrap: wrap; gap: 7px; }
     .chip { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid #2a2a3a; background: #1a1a26; color: #aaa; cursor: pointer; transition: all 0.15s; }
     .chip:hover { background: #2a2a3a; color: #fff; }
@@ -34,103 +37,171 @@
     textarea { flex: 1; background: #1a1a26; border: 1px solid #2a2a3a; border-radius: 12px; padding: 10px 14px; font-family: inherit; font-size: 14px; color: #e8e8f0; resize: none; height: 44px; line-height: 1.4; }
     textarea:focus { outline: none; border-color: #4444cc; }
     textarea::placeholder { color: #555; }
-    button { padding: 10px 18px; border-radius: 12px; border: none; background: #e84444; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; }
-    button:hover { background: #cc3333; }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    #send-btn { padding: 10px 18px; border-radius: 12px; border: none; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
+    #send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .typing { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: #555; animation: bounce 1.2s infinite; }
-    .dot:nth-child(2) { animation-delay: 0.2s; }
-    .dot:nth-child(3) { animation-delay: 0.4s; }
+    .tdot { width: 6px; height: 6px; border-radius: 50%; background: #555; animation: bounce 1.2s infinite; }
+    .tdot:nth-child(2) { animation-delay: 0.2s; }
+    .tdot:nth-child(3) { animation-delay: 0.4s; }
     @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
   </style>
 </head>
 <body>
 <div id="app">
+  <div id="mode-bar">
+    <button class="mode-btn active" style="--accent:#e84444" onclick="setMode(this,'roblox')">
+      <span class="dot" style="background:#e84444"></span> Roblox Studio
+    </button>
+    <button class="mode-btn" style="--accent:#4a9eff" onclick="setMode(this,'website')">
+      <span class="dot" style="background:#4a9eff"></span> Website (HTML/CSS/JS)
+    </button>
+    <button class="mode-btn" style="--accent:#a855f7" onclick="setMode(this,'game')">
+      <span class="dot" style="background:#a855f7"></span> Browser Game
+    </button>
+  </div>
+
   <header>
-    <div class="logo">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-      </svg>
+    <div class="logo" id="logo" style="background:#e84444">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
     </div>
     <div>
-      <h1>Roblox Studio AI</h1>
-      <p>Powered by Groq · Llama 3.3 70B · Free</p>
+      <h1 id="header-title">Roblox Studio AI</h1>
+      <p id="header-sub">Luau &amp; Roblox API assistant · Powered by Groq</p>
     </div>
   </header>
 
-  <div id="messages">
-    <div class="msg assistant">
-      <div class="avatar">RS</div>
-      <div class="bubble"><p>Hey! I'm your Roblox Studio coding assistant. Ask me anything about Luau, Roblox APIs, game mechanics, or debugging. What are you building?</p></div>
-    </div>
-  </div>
-
-  <div id="chips">
-    <span class="chip" onclick="sendChip(this)">Make a part move up and down</span>
-    <span class="chip" onclick="sendChip(this)">How do RemoteEvents work?</span>
-    <span class="chip" onclick="sendChip(this)">Create a leaderstats board</span>
-    <span class="chip" onclick="sendChip(this)">Tween a door open on touch</span>
-  </div>
+  <div id="messages"></div>
+  <div id="chips"></div>
 
   <div id="input-row">
-    <textarea id="user-input" placeholder="Ask about Luau, Roblox APIs, game mechanics..." onkeydown="handleKey(event)"></textarea>
-    <button id="send-btn" onclick="sendMessage()">Send</button>
+    <textarea id="user-input" placeholder="Ask a coding question..." onkeydown="handleKey(event)"></textarea>
+    <button id="send-btn" style="background:#e84444" onclick="sendMessage()">Send</button>
   </div>
 </div>
+
 <script>
-  const history = [];
-  const messagesEl = document.getElementById("messages");
-  const inputEl = document.getElementById("user-input");
-  const sendBtn = document.getElementById("send-btn");
-  function sendChip(el) { inputEl.value = el.textContent; sendMessage(); }
-  function handleKey(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
-  function escapeHtml(t) { return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-  function formatMessage(text) {
-    return text.split(/(```[\s\S]*?```)/g).map(part => {
-      if (part.startsWith("```")) {
-        const lines = part.slice(3).split("\n");
-        return `<pre><code>${escapeHtml(lines.slice(1).join("\n").replace(/```$/,"").trimEnd())}</code></pre>`;
-      }
-      let html = escapeHtml(part).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
-      return html.split("\n").filter(l=>l.trim()).map(l=>`<p>${l}</p>`).join("");
-    }).join("");
+const MODES = {
+  roblox: {
+    title: "Roblox Studio AI",
+    sub: "Luau & Roblox API assistant · Powered by Groq",
+    color: "#e84444",
+    avatar: "RS",
+    placeholder: "Ask about Luau, RemoteEvents, game mechanics...",
+    greeting: "Hey! I'm your Roblox Studio coding assistant. Ask me anything about Luau, Roblox APIs, or game mechanics!",
+    chips: ["Make a part move up and down", "How do RemoteEvents work?", "Create a leaderstats board", "Tween a door open on touch"],
+    system: "You are an expert Roblox Studio coding assistant specializing in Luau scripting, Roblox APIs (Workspace, Players, TweenService, RunService, DataStoreService, etc.), RemoteEvents, RemoteFunctions, and game mechanics. Keep responses concise. Format all code in ```lua blocks with comments."
+  },
+  website: {
+    title: "Website Builder AI",
+    sub: "HTML, CSS & JavaScript assistant · Powered by Groq",
+    color: "#4a9eff",
+    avatar: "WB",
+    placeholder: "Ask about HTML, CSS, JavaScript, layouts...",
+    greeting: "Hey! I'm your web development assistant. Ask me anything about building websites with HTML, CSS, and JavaScript!",
+    chips: ["Make a responsive navbar", "Create a contact form", "Animate a button on hover", "Make a dark mode toggle"],
+    system: "You are an expert web development assistant specializing in HTML, CSS, and vanilla JavaScript. Help users build websites, landing pages, and UI components. Format code in ```html, ```css, or ```js blocks. Be concise and always provide working examples."
+  },
+  game: {
+    title: "Browser Game AI",
+    sub: "HTML5 Canvas & JS game assistant · Powered by Groq",
+    color: "#a855f7",
+    avatar: "GD",
+    placeholder: "Ask about Canvas, game loops, collision detection...",
+    greeting: "Hey! I'm your browser game development assistant. Ask me anything about building 2D games with HTML5 Canvas and JavaScript!",
+    chips: ["Create a basic game loop", "Add WASD player movement", "Simple collision detection", "Make an enemy follow the player"],
+    system: "You are an expert browser game development assistant specializing in HTML5 Canvas, JavaScript game loops, physics, collision detection, sprite animation, and game mechanics. Help users build 2D games using vanilla JS and Canvas. Format code in ```js or ```html blocks. Be concise and practical."
   }
-  function addMessage(role, text) {
-    const div = document.createElement("div");
-    div.className = `msg ${role}`;
-    div.innerHTML = `<div class="avatar">${role==="user"?"U":"RS"}</div><div class="bubble">${formatMessage(text)}</div>`;
-    messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-  function showTyping() {
-    const div = document.createElement("div");
-    div.className = "msg assistant"; div.id = "typing-indicator";
-    div.innerHTML = `<div class="avatar">RS</div><div class="bubble"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
-    messagesEl.appendChild(div); messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-  function removeTyping() { const el = document.getElementById("typing-indicator"); if (el) el.remove(); }
-  async function sendMessage() {
-    const text = inputEl.value.trim();
-    if (!text || sendBtn.disabled) return;
-    inputEl.value = ""; sendBtn.disabled = true;
-    addMessage("user", text);
-    history.push({ role: "user", content: text });
-    showTyping();
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history })
-      });
-      const data = await res.json();
-      const reply = data.reply || data.error || "Something went wrong.";
-      removeTyping(); addMessage("assistant", reply);
-      history.push({ role: "assistant", content: reply });
-    } catch (e) {
-      removeTyping(); addMessage("assistant", "Network error: " + e.message);
+};
+
+let currentMode = "roblox";
+const history = [];
+const messagesEl = document.getElementById("messages");
+const inputEl = document.getElementById("user-input");
+const sendBtn = document.getElementById("send-btn");
+const chipsEl = document.getElementById("chips");
+
+function setMode(btn, mode) {
+  document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentMode = mode;
+  const m = MODES[mode];
+  document.getElementById("header-title").textContent = m.title;
+  document.getElementById("header-sub").textContent = m.sub;
+  document.getElementById("logo").style.background = m.color;
+  document.getElementById("send-btn").style.background = m.color;
+  inputEl.placeholder = m.placeholder;
+  history.length = 0;
+  messagesEl.innerHTML = "";
+  renderChips();
+  addMessage("assistant", m.greeting);
+}
+
+function renderChips() {
+  chipsEl.innerHTML = MODES[currentMode].chips
+    .map(c => `<span class="chip" onclick="sendChip(this)">${c}</span>`).join("");
+}
+
+function sendChip(el) { inputEl.value = el.textContent; sendMessage(); }
+function handleKey(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function escapeHtml(t) { return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function formatMessage(text) {
+  return text.split(/(```[\s\S]*?```)/g).map(part => {
+    if (part.startsWith("```")) {
+      const lines = part.slice(3).split("\n");
+      return `<pre><code>${escapeHtml(lines.slice(1).join("\n").replace(/```$/,"").trimEnd())}</code></pre>`;
     }
-    sendBtn.disabled = false; inputEl.focus();
+    let html = escapeHtml(part).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
+    return html.split("\n").filter(l => l.trim()).map(l => `<p>${l}</p>`).join("");
+  }).join("");
+}
+
+function addMessage(role, text) {
+  const m = MODES[currentMode];
+  const div = document.createElement("div");
+  div.className = `msg ${role}`;
+  const bg = role === "user" ? "#3a3af0" : m.color;
+  const label = role === "user" ? "U" : m.avatar;
+  div.innerHTML = `<div class="avatar" style="background:${bg};color:#fff">${label}</div><div class="bubble">${formatMessage(text)}</div>`;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function showTyping() {
+  const m = MODES[currentMode];
+  const div = document.createElement("div");
+  div.className = "msg assistant"; div.id = "typing-indicator";
+  div.innerHTML = `<div class="avatar" style="background:${m.color};color:#fff">${m.avatar}</div><div class="bubble"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function removeTyping() { const el = document.getElementById("typing-indicator"); if (el) el.remove(); }
+
+async function sendMessage() {
+  const text = inputEl.value.trim();
+  if (!text || sendBtn.disabled) return;
+  inputEl.value = ""; sendBtn.disabled = true;
+  addMessage("user", text);
+  history.push({ role: "user", content: text });
+  showTyping();
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: history, system: MODES[currentMode].system })
+    });
+    const data = await res.json();
+    const reply = data.reply || data.error || "Something went wrong.";
+    removeTyping(); addMessage("assistant", reply);
+    history.push({ role: "assistant", content: reply });
+  } catch (e) {
+    removeTyping(); addMessage("assistant", "Network error: " + e.message);
   }
+  sendBtn.disabled = false; inputEl.focus();
+}
+
+setMode(document.querySelector(".mode-btn"), "roblox");
 </script>
 </body>
 </html>
