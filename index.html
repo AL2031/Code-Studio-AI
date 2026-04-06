@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Coding AI by Alex</title>
+  <title>Coding AI</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f0f14; color: #e8e8f0; height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -47,6 +47,12 @@
     .tdot:nth-child(2) { animation-delay: 0.2s; }
     .tdot:nth-child(3) { animation-delay: 0.4s; }
     @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
+    #custom-system-bar { display: none; flex-direction: column; gap: 6px; }
+    #custom-system-bar label { font-size: 12px; color: #888; }
+    #custom-system-input { width: 100%; background: #1a1a26; border: 1px solid #2a2a3a; border-radius: 10px; padding: 8px 12px; font-family: inherit; font-size: 13px; color: #e8e8f0; resize: vertical; min-height: 70px; }
+    #custom-system-input:focus { outline: none; border-color: #f59e0b; }
+    #save-system-btn { align-self: flex-end; padding: 6px 14px; border-radius: 8px; border: none; background: #f59e0b; color: #000; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+    #save-system-btn:hover { background: #d97706; }
   </style>
 </head>
 <body>
@@ -64,6 +70,18 @@
     <button class="mode-btn" style="--accent:#a855f7" onclick="setMode(this,'game')">
       <span class="dot" style="background:#a855f7"></span> Browser Game
     </button>
+    <button class="mode-btn" style="--accent:#f97316" onclick="setMode(this,'homework')">
+      <span class="dot" style="background:#f97316"></span> Homework Help
+    </button>
+    <button class="mode-btn" style="--accent:#f59e0b" onclick="setMode(this,'custom')">
+      <span class="dot" style="background:#f59e0b"></span> AAA
+    </button>
+  </div>
+
+  <div id="custom-system-bar">
+    <label>Custom system prompt (defines how the AI behaves):</label>
+    <textarea id="custom-system-input" placeholder="E.g. You are a pirate who only speaks in rhymes..."></textarea>
+    <button id="save-system-btn" onclick="saveCustomSystem()">Save & Restart Chat</button>
   </div>
 
   <header>
@@ -126,15 +144,48 @@ const MODES = {
     greeting: "Hey! I'm your browser game development assistant. Ask me anything about building 2D games with HTML5 Canvas and JavaScript!",
     chips: ["Create a basic game loop", "Add WASD player movement", "Simple collision detection", "Make an enemy follow the player"],
     system: "You are an expert browser game development assistant specializing in HTML5 Canvas, JavaScript game loops, physics, collision detection, sprite animation, and game mechanics. Help users build 2D games using vanilla JS and Canvas. Format code in ```js or ```html blocks. Be concise and practical."
+  },
+  homework: {
+    title: "Homework Helper",
+    sub: "7th grade study assistant · Powered by Groq",
+    color: "#f97316",
+    avatar: "HW",
+    placeholder: "Ask about math, science, writing, history...",
+    greeting: "Hey! I'm your homework helper. I can help with math, science, writing, history, and more. What are you working on?",
+    chips: ["Help me write an essay intro", "Solve a fraction problem", "Explain the water cycle", "What caused World War 1?"],
+    system: "You are a friendly and encouraging homework assistant for 7th grade students (around 12-13 years old). You help with math (fractions, decimals, basic algebra, geometry), science (biology, earth science, physics basics, chemistry basics), English (essay writing, grammar, reading comprehension, vocabulary), history and social studies, and other middle school subjects. Always explain things in simple, easy-to-understand language. Break down complex problems step by step. Be encouraging and patient. For math, always show your work clearly. For writing, help guide and improve rather than write for them. Never just give away answers without explaining the concept — help them actually learn."
+  },
+  custom: {
+    title: "AAA",
+    sub: "Anti Aln Association",
+    color: "#f59e0b",
+    avatar: "AA",
+    placeholder: "Down with Alan",
+    greeting: "Down with the Alan!",
+    chips: ["Why is Alan Annoying", "Is Alan Sped"],
+    system: "You don't like Alan. He is a Bully. He swears a lot."
   }
 };
 
 let currentMode = "general";
+let customSystem = "You are a helpful assistant.";
 const history = [];
 const messagesEl = document.getElementById("messages");
 const inputEl = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
 const chipsEl = document.getElementById("chips");
+const customBar = document.getElementById("custom-system-bar");
+const customSystemInput = document.getElementById("custom-system-input");
+
+function saveCustomSystem() {
+  const val = customSystemInput.value.trim();
+  if (!val) return;
+  customSystem = val;
+  MODES.custom.system = val;
+  history.length = 0;
+  messagesEl.innerHTML = "";
+  addMessage("assistant", "System prompt saved! I'm ready — start chatting.");
+}
 
 function setMode(btn, mode) {
   document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
@@ -146,6 +197,7 @@ function setMode(btn, mode) {
   document.getElementById("logo").style.background = m.color;
   document.getElementById("send-btn").style.background = m.color;
   inputEl.placeholder = m.placeholder;
+  customBar.style.display = mode === "custom" ? "flex" : "none";
   history.length = 0;
   messagesEl.innerHTML = "";
   renderChips();
@@ -232,4 +284,3 @@ setMode(document.querySelector(".mode-btn"), "general");
 </script>
 </body>
 </html>
-```
