@@ -27,9 +27,12 @@
     .bubble p { margin: 5px 0; }
     .bubble p:first-child { margin-top: 0; }
     .bubble p:last-child { margin-bottom: 0; }
-    pre { background: #0d0d18; border: 1px solid #2a2a3a; border-radius: 8px; padding: 12px 14px; margin: 8px 0; overflow-x: auto; }
+    pre { background: #0d0d18; border: 1px solid #2a2a3a; border-radius: 8px; padding: 12px 14px; margin: 8px 0; overflow-x: auto; position: relative; }
     code { font-family: monospace; font-size: 12.5px; color: #a8d8a8; white-space: pre; }
     p code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; color: #a8d8a8; font-family: monospace; }
+    .copy-btn { position: absolute; top: 8px; right: 8px; background: #2a2a3a; border: none; color: #aaa; font-size: 11px; padding: 3px 9px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+    .copy-btn:hover { background: #3a3a4a; color: #fff; }
+    .copy-btn.copied { color: #a8d8a8; }
     #chips { display: flex; flex-wrap: wrap; gap: 7px; }
     .chip { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid #2a2a3a; background: #1a1a26; color: #aaa; cursor: pointer; transition: all 0.15s; }
     .chip:hover { background: #2a2a3a; color: #fff; }
@@ -145,11 +148,22 @@ function sendChip(el) { inputEl.value = el.textContent; sendMessage(); }
 function handleKey(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function escapeHtml(t) { return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
+function copyCode(id, btn) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = "Copied!";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("copied"); }, 2000);
+  });
+}
+
 function formatMessage(text) {
   return text.split(/(```[\s\S]*?```)/g).map(part => {
     if (part.startsWith("```")) {
       const lines = part.slice(3).split("\n");
-      return `<pre><code>${escapeHtml(lines.slice(1).join("\n").replace(/```$/,"").trimEnd())}</code></pre>`;
+      const code = lines.slice(1).join("\n").replace(/```$/, "").trimEnd();
+      const id = "cb" + Math.random().toString(36).slice(2, 8);
+      return `<pre><code id="${id}">${escapeHtml(code)}</code><button class="copy-btn" onclick="copyCode('${id}', this)">Copy</button></pre>`;
     }
     let html = escapeHtml(part).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
     return html.split("\n").filter(l => l.trim()).map(l => `<p>${l}</p>`).join("");
