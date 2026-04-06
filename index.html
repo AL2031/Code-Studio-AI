@@ -1,3 +1,6 @@
+Here's the full updated `index.html`:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,7 +55,10 @@
 <body>
 <div id="app">
   <div id="mode-bar">
-    <button class="mode-btn active" style="--accent:#e84444" onclick="setMode(this,'roblox')">
+    <button class="mode-btn active" style="--accent:#22c55e" onclick="setMode(this,'general')">
+      <span class="dot" style="background:#22c55e"></span> General
+    </button>
+    <button class="mode-btn" style="--accent:#e84444" onclick="setMode(this,'roblox')">
       <span class="dot" style="background:#e84444"></span> Roblox Studio
     </button>
     <button class="mode-btn" style="--accent:#4a9eff" onclick="setMode(this,'website')">
@@ -64,12 +70,12 @@
   </div>
 
   <header>
-    <div class="logo" id="logo" style="background:#e84444">
+    <div class="logo" id="logo" style="background:#22c55e">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
     </div>
     <div>
-      <h1 id="header-title">Roblox Studio AI</h1>
-      <p id="header-sub">Luau &amp; Roblox API assistant · Powered by Groq</p>
+      <h1 id="header-title">Coding AI</h1>
+      <p id="header-sub">General coding assistant · Powered by Groq</p>
     </div>
   </header>
 
@@ -77,13 +83,23 @@
   <div id="chips"></div>
 
   <div id="input-row">
-    <textarea id="user-input" placeholder="Ask a coding question..." onkeydown="handleKey(event)"></textarea>
-    <button id="send-btn" style="background:#e84444" onclick="sendMessage()">Send</button>
+    <textarea id="user-input" placeholder="Ask any coding question..." onkeydown="handleKey(event)"></textarea>
+    <button id="send-btn" style="background:#22c55e" onclick="sendMessage()">Send</button>
   </div>
 </div>
 
 <script>
 const MODES = {
+  general: {
+    title: "Coding AI",
+    sub: "General coding assistant · Powered by Groq",
+    color: "#22c55e",
+    avatar: "AI",
+    placeholder: "Ask any coding question...",
+    greeting: "Hey! I'm your general coding assistant. Ask me anything — any language, any topic!",
+    chips: ["Explain how APIs work", "What is a for loop?", "Difference between Python and JavaScript", "Help me fix a bug"],
+    system: "You are an expert coding assistant. Help users with any programming language or technology including Python, JavaScript, HTML, CSS, Lua, C#, and more. Format all code in appropriate code blocks with the language specified. Be concise and practical."
+  },
   roblox: {
     title: "Roblox Studio AI",
     sub: "Luau & Roblox API assistant · Powered by Groq",
@@ -116,7 +132,7 @@ const MODES = {
   }
 };
 
-let currentMode = "roblox";
+let currentMode = "general";
 const history = [];
 const messagesEl = document.getElementById("messages");
 const inputEl = document.getElementById("user-input");
@@ -215,7 +231,8 @@ async function sendMessage() {
   sendBtn.disabled = false; inputEl.focus();
 }
 
-setMode(document.querySelector(".mode-btn"), "roblox");
+setMode(document.querySelector(".mode-btn"), "general");
 </script>
 </body>
 </html>
+```
