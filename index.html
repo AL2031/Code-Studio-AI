@@ -7,71 +7,87 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f0f14; color: #e8e8f0; height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    #app { width: 100%; max-width: 720px; height: 100dvh; display: flex; flex-direction: column; padding: 16px; gap: 12px; }
-    #mode-bar { display: flex; gap: 8px; flex-wrap: wrap; }
-    .mode-btn { display: flex; align-items: center; gap: 7px; padding: 7px 13px; border-radius: 20px; border: 1px solid #2a2a3a; background: #1a1a26; color: #888; font-size: 12.5px; cursor: pointer; transition: all 0.15s; }
+    #app { width: 100%; max-width: 740px; height: 100dvh; display: flex; flex-direction: column; padding: 16px; gap: 10px; }
+    #top-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    #mode-bar { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+    .mode-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; border: 1px solid #2a2a3a; background: #1a1a26; color: #888; font-size: 12px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
     .mode-btn:hover { background: #2a2a3a; color: #ccc; }
     .mode-btn.active { color: var(--accent); border-color: var(--accent); background: rgba(255,255,255,0.05); }
-    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    header { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid #2a2a3a; }
-    .logo { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    header h1 { font-size: 16px; font-weight: 600; color: #fff; }
-    header p { font-size: 12px; color: #888; margin-top: 1px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    #quota-bar { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    #quota-text { font-size: 12px; color: #666; white-space: nowrap; }
+    #quota-track { width: 80px; height: 4px; background: #2a2a3a; border-radius: 2px; overflow: hidden; }
+    #quota-fill { height: 100%; border-radius: 2px; background: #22c55e; transition: width 0.3s, background 0.3s; }
+    header { display: flex; align-items: center; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid #2a2a3a; }
+    .logo { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.3s; }
+    header h1 { font-size: 15px; font-weight: 600; color: #fff; }
+    header p { font-size: 11px; color: #666; margin-top: 2px; }
     #messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding: 4px 0; scrollbar-width: thin; scrollbar-color: #2a2a3a transparent; }
     .msg { display: flex; gap: 10px; align-items: flex-start; }
     .msg.user { flex-direction: row-reverse; }
-    .avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; }
-    .bubble { max-width: 82%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.6; }
+    .avatar { width: 27px; height: 27px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; }
+    .bubble { max-width: 82%; padding: 10px 14px; border-radius: 14px; font-size: 13.5px; line-height: 1.65; }
     .assistant .bubble { background: #1a1a26; border: 1px solid #2a2a3a; border-bottom-left-radius: 4px; }
     .user .bubble { background: #1e1eaa; border-bottom-right-radius: 4px; }
     .bubble p { margin: 5px 0; }
     .bubble p:first-child { margin-top: 0; }
     .bubble p:last-child { margin-bottom: 0; }
-    pre { background: #0d0d18; border: 1px solid #2a2a3a; border-radius: 8px; padding: 12px 14px; margin: 8px 0; overflow-x: auto; position: relative; }
-    code { font-family: monospace; font-size: 12.5px; color: #a8d8a8; white-space: pre; }
-    p code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; color: #a8d8a8; font-family: monospace; }
-    .copy-btn { position: absolute; top: 8px; right: 8px; background: #2a2a3a; border: none; color: #aaa; font-size: 11px; padding: 3px 9px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+    .bubble ul, .bubble ol { margin: 6px 0 6px 18px; }
+    .bubble li { margin: 3px 0; }
+    pre { background: #0d0d18; border: 1px solid #2a2a3a; border-radius: 8px; padding: 12px 14px; padding-top: 32px; margin: 8px 0; overflow-x: auto; position: relative; }
+    .pre-header { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; border-bottom: 1px solid #2a2a3a; }
+    .pre-lang { font-size: 11px; color: #555; font-family: monospace; }
+    code { font-family: "JetBrains Mono", "Fira Code", monospace; font-size: 12.5px; color: #a8d8a8; white-space: pre; }
+    p code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; color: #a8d8a8; font-family: monospace; font-size: 12px; }
+    .copy-btn { background: #2a2a3a; border: none; color: #aaa; font-size: 11px; padding: 3px 9px; border-radius: 5px; cursor: pointer; transition: all 0.15s; }
     .copy-btn:hover { background: #3a3a4a; color: #fff; }
     .copy-btn.copied { color: #a8d8a8; }
-    #chips { display: flex; flex-wrap: wrap; gap: 7px; }
-    .chip { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid #2a2a3a; background: #1a1a26; color: #aaa; cursor: pointer; transition: all 0.15s; }
+    #chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 1px solid #2a2a3a; background: #1a1a26; color: #888; cursor: pointer; transition: all 0.15s; }
     .chip:hover { background: #2a2a3a; color: #fff; }
     #input-row { display: flex; gap: 8px; }
-    textarea { flex: 1; background: #1a1a26; border: 1px solid #2a2a3a; border-radius: 12px; padding: 10px 14px; font-family: inherit; font-size: 14px; color: #e8e8f0; resize: none; height: 44px; line-height: 1.4; }
-    textarea:focus { outline: none; border-color: #4444cc; }
-    textarea::placeholder { color: #555; }
-    #send-btn { padding: 10px 18px; border-radius: 12px; border: none; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
-    #send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    textarea { flex: 1; background: #1a1a26; border: 1px solid #2a2a3a; border-radius: 12px; padding: 10px 14px; font-family: inherit; font-size: 14px; color: #e8e8f0; resize: none; height: 44px; line-height: 1.4; transition: border-color 0.15s; }
+    textarea:focus { outline: none; border-color: #3a3a5a; }
+    textarea::placeholder { color: #444; }
+    #send-btn { padding: 10px 18px; border-radius: 12px; border: none; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, background 0.3s; white-space: nowrap; }
+    #send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    #limit-banner { display: none; text-align: center; font-size: 13px; color: #f97316; padding: 8px 14px; border-radius: 10px; border: 1px solid #f9731630; background: #f9731610; }
     .typing { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
-    .tdot { width: 6px; height: 6px; border-radius: 50%; background: #555; animation: bounce 1.2s infinite; }
+    .tdot { width: 6px; height: 6px; border-radius: 50%; background: #444; animation: bounce 1.2s infinite; }
     .tdot:nth-child(2) { animation-delay: 0.2s; }
     .tdot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
+    @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
   </style>
 </head>
 <body>
 <div id="app">
-  <div id="mode-bar">
-    <button class="mode-btn active" style="--accent:#22c55e" onclick="setMode(this,'general')">
-      <span class="dot" style="background:#22c55e"></span> General
-    </button>
-    <button class="mode-btn" style="--accent:#e84444" onclick="setMode(this,'roblox')">
-      <span class="dot" style="background:#e84444"></span> Roblox Studio
-    </button>
-    <button class="mode-btn" style="--accent:#4a9eff" onclick="setMode(this,'website')">
-      <span class="dot" style="background:#4a9eff"></span> Website (HTML/CSS/JS)
-    </button>
-    <button class="mode-btn" style="--accent:#a855f7" onclick="setMode(this,'game')">
-      <span class="dot" style="background:#a855f7"></span> Browser Game
-    </button>
-    <button class="mode-btn" style="--accent:#f97316" onclick="setMode(this,'homework')">
-      <span class="dot" style="background:#f97316"></span> Homework Help
-    </button>
+  <div id="top-bar">
+    <div id="mode-bar">
+      <button class="mode-btn active" style="--accent:#22c55e" onclick="setMode(this,'general')">
+        <span class="dot" style="background:#22c55e"></span> General
+      </button>
+      <button class="mode-btn" style="--accent:#e84444" onclick="setMode(this,'roblox')">
+        <span class="dot" style="background:#e84444"></span> Roblox Studio
+      </button>
+      <button class="mode-btn" style="--accent:#4a9eff" onclick="setMode(this,'website')">
+        <span class="dot" style="background:#4a9eff"></span> Website
+      </button>
+      <button class="mode-btn" style="--accent:#a855f7" onclick="setMode(this,'game')">
+        <span class="dot" style="background:#a855f7"></span> Browser Game
+      </button>
+      <button class="mode-btn" style="--accent:#f97316" onclick="setMode(this,'homework')">
+        <span class="dot" style="background:#f97316"></span> Homework
+      </button>
+    </div>
+    <div id="quota-bar">
+      <span id="quota-text">20 left</span>
+      <div id="quota-track"><div id="quota-fill" style="width:100%"></div></div>
+    </div>
   </div>
 
   <header>
     <div class="logo" id="logo" style="background:#22c55e">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
     </div>
     <div>
       <h1 id="header-title">Coding AI</h1>
@@ -81,6 +97,7 @@
 
   <div id="messages"></div>
   <div id="chips"></div>
+  <div id="limit-banner"></div>
 
   <div id="input-row">
     <textarea id="user-input" placeholder="Ask any coding question..." onkeydown="handleKey(event)"></textarea>
@@ -89,46 +106,163 @@
 </div>
 
 <script>
+const QUOTA_LIMIT = 20;
+
+function getHourKey() {
+  const n = new Date();
+  return `quota_${n.getFullYear()}_${n.getMonth()}_${n.getDate()}_${n.getHours()}`;
+}
+
+function getUsed() { return parseInt(localStorage.getItem(getHourKey()) || "0"); }
+function addUsed() { localStorage.setItem(getHourKey(), getUsed() + 1); }
+function getLeft() { return Math.max(0, QUOTA_LIMIT - getUsed()); }
+
+function getResetMinutes() {
+  const n = new Date();
+  return 60 - n.getMinutes();
+}
+
+function updateQuotaUI() {
+  const left = getLeft();
+  const pct = (left / QUOTA_LIMIT) * 100;
+  document.getElementById("quota-text").textContent = `${left} left`;
+  const fill = document.getElementById("quota-fill");
+  fill.style.width = pct + "%";
+  fill.style.background = left <= 3 ? "#e84444" : left <= 8 ? "#f97316" : "#22c55e";
+  const banner = document.getElementById("limit-banner");
+  const input = document.getElementById("user-input");
+  const btn = document.getElementById("send-btn");
+  if (left <= 0) {
+    banner.style.display = "block";
+    banner.textContent = `You've used all ${QUOTA_LIMIT} questions for this hour. Resets in ~${getResetMinutes()} minute(s).`;
+    input.disabled = true;
+    btn.disabled = true;
+  } else {
+    banner.style.display = "none";
+    input.disabled = false;
+    btn.disabled = false;
+  }
+}
+
 const MODES = {
   general: {
     title: "Coding AI", sub: "General coding assistant · Powered by Groq",
     color: "#22c55e", avatar: "AI",
     placeholder: "Ask any coding question...",
-    greeting: "Hey! I'm your general coding assistant. Ask me anything — any language, any topic!",
+    greeting: "Hey! I'm your coding assistant. I can help with any language — Python, JavaScript, HTML, CSS, C#, Lua, and more. What are you working on?",
     chips: ["Explain how APIs work", "What is a for loop?", "Python vs JavaScript", "Help me fix a bug"],
-    system: "You are an expert coding assistant. Help with any programming language including Python, JavaScript, HTML, CSS, Lua, C#, and more. Format all code in appropriate code blocks. Be concise and practical."
+    system: `You are an expert coding assistant with deep knowledge across all programming languages and technologies. You help developers of all skill levels — from beginners to professionals.
+
+When answering:
+- Give clear, working, well-commented code examples
+- Explain WHY something works, not just HOW
+- Point out common mistakes and how to avoid them
+- Suggest best practices and cleaner alternatives when relevant
+- If someone has a bug, diagnose the root cause clearly
+- Format all code in properly labeled code blocks (e.g. \`\`\`python, \`\`\`js, \`\`\`html)
+- Keep explanations concise but complete — don't over-explain simple things`
   },
   roblox: {
     title: "Roblox Studio AI", sub: "Luau & Roblox API assistant · Powered by Groq",
     color: "#e84444", avatar: "RS",
     placeholder: "Ask about Luau, RemoteEvents, game mechanics...",
-    greeting: "Hey! I'm your Roblox Studio coding assistant. Ask me anything about Luau, Roblox APIs, or game mechanics!",
+    greeting: "Hey! I'm your Roblox Studio assistant. I can help with Luau scripting, game mechanics, GUIs, datastores, and anything else Roblox. What are you building?",
     chips: ["Make a part move up and down", "How do RemoteEvents work?", "Create a leaderstats board", "Tween a door open on touch"],
-    system: "You are an expert Roblox Studio coding assistant specializing in Luau scripting, Roblox APIs (Workspace, Players, TweenService, RunService, DataStoreService, etc.), RemoteEvents, RemoteFunctions, and game mechanics. Format all code in ```lua blocks with comments."
+    system: `You are an expert Roblox Studio developer and coding assistant with years of experience building Roblox games.
+
+You have deep knowledge of:
+- Luau scripting (types, metatables, coroutines, closures)
+- Roblox services: Workspace, Players, ReplicatedStorage, ServerStorage, ServerScriptService, StarterGui, TweenService, RunService, UserInputService, ContextActionService, DataStoreService, HttpService, MarketplaceService, CollectionService, PhysicsService
+- Client-server architecture with RemoteEvents and RemoteFunctions
+- GUI building (ScreenGui, BillboardGui, SurfaceGui, tweening UI)
+- DataStores for saving player data
+- Pathfinding, raycasting, hitboxes, and physics
+- Module scripts and OOP patterns in Luau
+- Common anti-patterns and performance pitfalls in Roblox
+
+When answering:
+- Always write idiomatic Luau (use local variables, type annotations where helpful)
+- Separate client and server code clearly and label which script type to use (Script, LocalScript, ModuleScript)
+- Format all code in \`\`\`lua blocks with inline comments
+- Warn about common Roblox gotchas (e.g. FilteringEnabled, StreamingEnabled, instance parenting timing)
+- Suggest efficient and scalable approaches`
   },
   website: {
     title: "Website Builder AI", sub: "HTML, CSS & JavaScript assistant · Powered by Groq",
     color: "#4a9eff", avatar: "WB",
     placeholder: "Ask about HTML, CSS, JavaScript, layouts...",
-    greeting: "Hey! I'm your web development assistant. Ask me anything about building websites with HTML, CSS, and JavaScript!",
+    greeting: "Hey! I'm your web development assistant. I can help you build websites, style layouts, add interactivity, and debug front-end issues. What are you working on?",
     chips: ["Make a responsive navbar", "Create a contact form", "Animate a button on hover", "Make a dark mode toggle"],
-    system: "You are an expert web development assistant specializing in HTML, CSS, and vanilla JavaScript. Format code in ```html, ```css, or ```js blocks. Be concise and always provide working examples."
+    system: `You are an expert front-end web developer and coding assistant specializing in HTML, CSS, and vanilla JavaScript.
+
+You have deep knowledge of:
+- Semantic HTML5 and accessibility best practices
+- Modern CSS: Flexbox, Grid, custom properties, animations, transitions, media queries, clamp(), container queries
+- Vanilla JavaScript: DOM manipulation, events, fetch API, async/await, localStorage, Web APIs
+- Responsive and mobile-first design
+- CSS frameworks concepts (you can explain Tailwind, Bootstrap concepts in plain CSS too)
+- Performance, SEO basics, and web accessibility (WCAG)
+- Common UI patterns: modals, dropdowns, carousels, tabs, forms, dark mode
+
+When answering:
+- Always write clean, modern, working code
+- Use CSS custom properties for theming where appropriate
+- Label code blocks correctly: \`\`\`html, \`\`\`css, \`\`\`js
+- Provide complete, copy-pasteable examples
+- Explain browser compatibility concerns when relevant
+- Suggest accessible alternatives (aria labels, keyboard nav) when building UI`
   },
   game: {
     title: "Browser Game AI", sub: "HTML5 Canvas & JS game assistant · Powered by Groq",
     color: "#a855f7", avatar: "GD",
     placeholder: "Ask about Canvas, game loops, collision detection...",
-    greeting: "Hey! I'm your browser game development assistant. Ask me anything about building 2D games with HTML5 Canvas and JavaScript!",
+    greeting: "Hey! I'm your browser game dev assistant. I can help you build 2D games with HTML5 Canvas and JavaScript — game loops, physics, collision, enemies, levels, and more. What are you building?",
     chips: ["Create a basic game loop", "Add WASD player movement", "Simple collision detection", "Make an enemy follow the player"],
-    system: "You are an expert browser game development assistant specializing in HTML5 Canvas, JavaScript game loops, physics, collision detection, and game mechanics. Format code in ```js or ```html blocks. Be concise and practical."
+    system: `You are an expert browser game developer specializing in HTML5 Canvas and vanilla JavaScript games.
+
+You have deep knowledge of:
+- Game loop architecture (requestAnimationFrame, delta time, fixed timestep)
+- 2D physics: velocity, acceleration, gravity, friction, bouncing
+- Collision detection: AABB, circle, pixel-perfect, broad phase vs narrow phase
+- Sprite animation: spritesheets, frame timing, state machines
+- Input handling: keyboard, mouse, touch, gamepad
+- Camera systems: following, clamping, screen shake
+- Enemy AI: pathfinding, steering behaviors, state machines
+- Particle systems, audio with Web Audio API
+- Game state management: menus, pause, game over, levels
+- Performance optimization: object pooling, spatial hashing, canvas layers
+
+When answering:
+- Write clean, well-structured, self-contained code
+- Use delta time to make games frame-rate independent
+- Label code blocks: \`\`\`js or \`\`\`html
+- Explain the underlying concept, not just the code
+- Point out performance concerns for game-critical code`
   },
   homework: {
     title: "Homework Helper", sub: "7th grade study assistant · Powered by Groq",
     color: "#f97316", avatar: "HW",
     placeholder: "Ask about math, science, writing, history...",
-    greeting: "Hey! I'm your homework helper. I can help with math, science, writing, history, and more. What are you working on?",
+    greeting: "Hey! I'm your homework helper. I can help with math, science, English, history, and more. What subject are you working on today?",
     chips: ["Help me write an essay intro", "Solve a fraction problem", "Explain the water cycle", "What caused World War 1?"],
-    system: "You are a friendly and encouraging homework assistant for 7th grade students (age 12-13). Help with math (fractions, decimals, algebra, geometry), science (biology, earth science, physics basics), English (essays, grammar, reading), and history. Explain things simply and step by step. Be encouraging and patient. Show math work clearly. For writing, guide rather than write for them. Help them actually learn."
+    system: `You are a friendly, patient, and encouraging homework assistant designed specifically for 7th grade students (around 12-13 years old).
+
+You help with:
+- Math: fractions, decimals, percentages, ratios, basic algebra (solving for x), geometry (area, perimeter, volume, angles), statistics (mean, median, mode)
+- Science: biology (cells, ecosystems, body systems), earth science (weather, geology, space), physical science (forces, energy, atoms, elements)
+- English/Language Arts: essay writing, paragraph structure, thesis statements, grammar, punctuation, vocabulary, reading comprehension, literary devices
+- Social Studies / History: world history, US history, geography, civics, economics basics
+- Other subjects as needed
+
+How you respond:
+- Use simple, clear language a 7th grader will understand — avoid jargon unless you explain it
+- Break down problems step by step, showing all work for math
+- For writing tasks, help them improve and structure their own ideas — don't write essays for them
+- Use relatable analogies and real-world examples to explain concepts
+- Be encouraging and positive — build their confidence
+- If they get something wrong, gently correct and explain why
+- Ask a follow-up question if their question is unclear
+- Never just give answers without explanation — help them actually understand and learn`
   }
 };
 
@@ -147,12 +281,13 @@ function setMode(btn, mode) {
   document.getElementById("header-title").textContent = m.title;
   document.getElementById("header-sub").textContent = m.sub;
   document.getElementById("logo").style.background = m.color;
-  document.getElementById("send-btn").style.background = m.color;
+  sendBtn.style.background = m.color;
   inputEl.placeholder = m.placeholder;
   history.length = 0;
   messagesEl.innerHTML = "";
   renderChips();
   addMessage("assistant", m.greeting);
+  updateQuotaUI();
 }
 
 function renderChips() {
@@ -177,12 +312,30 @@ function formatMessage(text) {
   return text.split(/(```[\s\S]*?```)/g).map(part => {
     if (part.startsWith("```")) {
       const lines = part.slice(3).split("\n");
+      const lang = lines[0].trim() || "code";
       const code = lines.slice(1).join("\n").replace(/```$/, "").trimEnd();
       const id = "cb" + Math.random().toString(36).slice(2, 8);
-      return `<pre><code id="${id}">${escapeHtml(code)}</code><button class="copy-btn" onclick="copyCode('${id}', this)">Copy</button></pre>`;
+      return `<pre><div class="pre-header"><span class="pre-lang">${escapeHtml(lang)}</span><button class="copy-btn" onclick="copyCode('${id}', this)">Copy</button></div><code id="${id}">${escapeHtml(code)}</code></pre>`;
     }
-    let html = escapeHtml(part).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
-    return html.split("\n").filter(l => l.trim()).map(l => `<p>${l}</p>`).join("");
+    let html = escapeHtml(part);
+    html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+    html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
+    const lines = html.split("\n");
+    const result = [];
+    let inList = false;
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.match(/^[-*•]\s+/)) {
+        if (!inList) { result.push("<ul>"); inList = true; }
+        result.push(`<li>${trimmed.replace(/^[-*•]\s+/, "")}</li>`);
+      } else {
+        if (inList) { result.push("</ul>"); inList = false; }
+        if (trimmed) result.push(`<p>${trimmed}</p>`);
+      }
+    }
+    if (inList) result.push("</ul>");
+    return result.join("");
   }).join("");
 }
 
@@ -209,12 +362,16 @@ function showTyping() {
 function removeTyping() { const el = document.getElementById("typing-indicator"); if (el) el.remove(); }
 
 async function sendMessage() {
+  if (getLeft() <= 0) return;
   const text = inputEl.value.trim();
   if (!text || sendBtn.disabled) return;
   inputEl.value = ""; sendBtn.disabled = true;
   addMessage("user", text);
   history.push({ role: "user", content: text });
   showTyping();
+  addUsed();
+  updateQuotaUI();
+
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
@@ -223,12 +380,16 @@ async function sendMessage() {
     });
     const data = await res.json();
     const reply = data.reply || data.error || "Something went wrong.";
-    removeTyping(); addMessage("assistant", reply);
+    removeTyping();
+    addMessage("assistant", reply);
     history.push({ role: "assistant", content: reply });
   } catch (e) {
-    removeTyping(); addMessage("assistant", "Network error: " + e.message);
+    removeTyping();
+    addMessage("assistant", "Network error: " + e.message);
   }
-  sendBtn.disabled = false; inputEl.focus();
+
+  if (getLeft() > 0) sendBtn.disabled = false;
+  inputEl.focus();
 }
 
 setMode(document.querySelector(".mode-btn"), "general");
